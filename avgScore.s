@@ -52,7 +52,7 @@ loop_in:
 	la $a0, str2 
 	syscall
 	move $a0, $s1	# More efficient than la $a0, orig
-	move $a1, $s0
+	move $a1, $s0	# $a1 is the size  
 	jal printArray	# Print original scores
 	li $v0, 4 
 	la $a0, str3 
@@ -82,9 +82,29 @@ loop_in:
 # It prints all the elements in one line with a newline at the end.
 printArray:
 	# Your implementation of printList here	
-
-	jr $ra
+	# $a0 is the array 
+	# $a1 is the len
+	move 	$s3, $a0 	# set $s3 as the array 	
+	li 	$t0, 0 		# set $t1 as the counter 
 	
+print_loop:
+	beq 	$t0, $a1, print_exit	# return if counter equal to the array len  
+	lw 	$a0, ($s3) 		#load the pointer into a0 
+	li 	$v0, 1 		
+	syscall   
+	
+	li 	$v0, 11		# print a space 
+    	li 	$a0, 32             	
+    	syscall
+    	
+	addi 	$s3, $s3, 4	# increment the array pointer
+    	addi 	$t0, $t0, 1	# increment the loop counter
+    	j 	print_loop
+print_exit:
+	li 	$v0, 11		# print a new line 
+    	li	$a0, 0xA            	
+    	syscall
+	jr 	$ra 
 	
 # selSort takes in the number of scores as argument. 
 # It performs SELECTION sort in descending order and populates the sorted array
