@@ -43,7 +43,7 @@ loop_in:
 	syscall
 	sw $v0, 0($t1)
 	addi $t0, $t0, 1
-	bne $t0, $s0, loop_in
+	bne $t0, $s0, loop_in 
 	
 	move $a0, $s0
 	jal selSort	# Call selSort to perform selection sort in original array
@@ -67,10 +67,18 @@ loop_in:
 	syscall
 	move $a1, $v0
 	sub $a1, $s0, $a1	# numScores - drop
-	move $a0, $s2
+	move $a0, $s1
+	#move $a0, $s2
 	jal calcSum	# Call calcSum to RECURSIVELY compute the sum of scores that are not dropped
 	
 	# Your code here to compute average and print it
+	move	$a1, $v0
+	sub 	$a1, $s0, $a1	# numScores - drop
+	# a1 is the len, $v1 is the sum 
+	
+	move 	$a0, $v1 
+    	li 	$v0, 1          	
+    	syscall
 	
 	lw $ra, 0($sp)
 	addi $sp, $sp 4
@@ -89,7 +97,7 @@ printArray:
 	
 print_loop:
 	beq 	$t0, $a1, print_exit	# return if counter equal to the array len  
-	lw 	$a0, ($s3) 		#load the pointer into a0 
+	lw 	$a0, ($s3) 		# load the pointer into a0 
 	li 	$v0, 1 		
 	syscall   
 	
@@ -119,6 +127,13 @@ selSort:
 # Note: you MUST NOT use iterative approach in this function.
 calcSum:
 	# Your implementation of calcSum here
-	
-	jr $ra
-	
+	# $a1 is the len number 
+	# $a0 is the array 
+	ble 	$a1, $zero, exit_cal 
+	lw 	$a2, ($a0)  	#load the element into $a2
+	add 	$v1, $a2, $v1
+	addi 	$a0, $a0, 4	# increment the array pointer
+    	addi 	$a1, $a1, -1	# increment the loop counter
+    	j 	calcSum 
+exit_cal: 
+	jr 	$ra
