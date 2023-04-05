@@ -91,22 +91,27 @@ printArray:
 	# Your implementation of printList here	
 	# $a0 is the array 
 	# $a1 is the len
-	move 	$s3, $a0 	# set $s3 as the array 	
-	li 	$t0, 0 		# set $t1 as the counter 
 	
+	li 	$t0, 0 		# set $t0 as the counter 
+	move 	$t1, $a0 	# set $t1 to the array
+		
 print_loop:
 	beq 	$t0, $a1, print_exit	# return if counter equal to the array len  
-	lw 	$a0, ($s3) 		# load the pointer into a0 
-	li 	$v0, 1 		
+	sll 	$t2, $t0, 2		# Multiply the counter by 4 to get the byte offset
+	addu 	$t2, $t2, $t1		# set $t2 to the adress of the element 
+	lw 	$t2, ($t2) 		# load the content $t2 to itself 
+	
+	li 	$v0, 1 		# print the element 
+	move 	$a0, $t2	
 	syscall   
+	
+	addi 	$t0, $t0, 1
 	
 	li 	$v0, 11		# print a space 
     	li 	$a0, 32             	
     	syscall
-    	
-	addi 	$s3, $s3, 4	# increment the array pointer
-    	addi 	$t0, $t0, 1	# increment the loop counter
     	j 	print_loop
+	
 print_exit:
 	li 	$v0, 11		# print a new line 
     	li	$a0, 0xA            	
@@ -118,21 +123,21 @@ print_exit:
 selSort:
 	# Your implementation of selSort here
 	# copy array 
-	move 	$t0, $s0	# set $t0 to the len 
+	# $a0 is the len 
+	li 	$t0, 0
 copy: 
-	lw	$t1, ($s1)	# load the element into $t1 
-	sw 	$t1, ($s2) 	# store the element into $s2 
-	addi 	$s1, $s1, 4  	# increment array pointer by 4 bytes
-    	addi 	$s2, $s2, 4  	# increment copy pointer by 4 bytes
-    	addi 	$t0, $t0, -1 	# decrease the counter 
-    	bgtz 	$t0, copy
-    	# reset the first pointer to the fisrt element of both array 
-    	addi 	$t0, $zero, 4 
-    	mul 	$t0, $s0, $t0 
-    	sub 	$s2, $s2, $t0 	
-    	sub 	$s1, $s1, $t0 
+	sll 	$t1, $t0, 2		# Multiply the counter by 4 to get the byte offset
+	addu 	$t2, $t1, $s1		# set $t2 to the address of the element 
+	addu 	$t3, $t1, $s2 
+	lw 	$t4, ($t2) 		# load the content to $t3 
+	sw 	$t4, ($t3) 
+	addi 	$t0, $t0, 1
+    	ble 	$t0, $a0, copy
+    	
+    	
+	
 
-sort: 	
+exitSel: 
 	jr $ra
 	
 	
