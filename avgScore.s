@@ -67,8 +67,7 @@ loop_in:
 	syscall
 	move $a1, $v0
 	sub $a1, $s0, $a1	# numScores - drop
-	move $a0, $s1
-	#move $a0, $s2
+	move $a0, $s2
 	jal calcSum	# Call calcSum to RECURSIVELY compute the sum of scores that are not dropped
 	
 	# Your code here to compute average and print it
@@ -118,7 +117,22 @@ print_exit:
 # It performs SELECTION sort in descending order and populates the sorted array
 selSort:
 	# Your implementation of selSort here
-	
+	# copy array 
+	move 	$t0, $s0	# set $t0 to the len 
+copy: 
+	lw	$t1, ($s1)	# load the element into $t1 
+	sw 	$t1, ($s2) 	# store the element into $s2 
+	addi 	$s1, $s1, 4  	# increment array pointer by 4 bytes
+    	addi 	$s2, $s2, 4  	# increment copy pointer by 4 bytes
+    	addi 	$t0, $t0, -1 	# decrease the counter 
+    	bgtz 	$t0, copy
+    	# reset the first pointer to the fisrt element of both array 
+    	addi 	$t0, $zero, 4 
+    	mul 	$t0, $s0, $t0 
+    	sub 	$s2, $s2, $t0 	
+    	sub 	$s1, $s1, $t0 
+
+sort: 	
 	jr $ra
 	
 	
