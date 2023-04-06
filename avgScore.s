@@ -71,11 +71,13 @@ loop_in:
 	jal calcSum	# Call calcSum to RECURSIVELY compute the sum of scores that are not dropped
 	
 	# Your code here to compute average and print it
-	move	$a1, $v0
-	sub 	$a1, $s0, $a1	# numScores - drop
-	# a1 is the len, $v1 is the sum 
 	
-	move 	$a0, $v1 
+	
+	# a1 is the len, $v1 is the sum 
+	li $v0, 4
+	la $a0, str5
+	syscall 
+	div	$a0, $v1, $a1
     	li 	$v0, 1          	
     	syscall
 	
@@ -134,8 +136,40 @@ copy:
 	addi 	$t0, $t0, 1
     	ble 	$t0, $a0, copy
     	
-    	
+    	#t0, t1, t2 can not be use later 
+    	li	$t0, 0 		# i = 0 
+    	addi 	$t1, $a0, -1 	# len - 1 	
+selLoop:
+	bge 	$t0, $t1, exitSel	# for loop 
+	move 	$t2, $t0 		# assume the first element is the greatest and set its index to $t2 
+	addi 	$t4, $t0, 1		# j = $t4 = i + 1 
+	sel2Loop: 
+		bge 	$t4, $a0, endJ
+		sll  	$t5, $t4, 2  	# index [j] * 4
+		sll  	$t6, $t2, 2 	# index [maxIndex] * 4
+		addu 	$t5, $t5, $s2 
+		addu 	$t6, $t6, $s2 
+		lw 	$t5, ($t5)
+		lw	$t6, ($t6) 
+			ble 	$t5, $t6, continue # if $t5 is less than $t6 go to continue 
+			move 	$t2, $t4  
+	continue: 	
+		addi 	$t4, $t4, 1
+		j 	sel2Loop 
+endJ: 	
+	sll  	$t3, $t2, 2  	
+	addu 	$t4, $t3, $s2	# $t4 = address of sorted[maxindex] 
+	lw 	$t5, ($t4) 	# $t5 = value of sorted[maxindex] 
+	 
+	sll  	$t3, $t0, 2
+	addu 	$t6, $t3, $s2   # $t6 = address of sorted[i]
+	lw 	$t7, ($t6)	# $t7 = value of sorted[i]
 	
+	sw	$t7, ($t4) 
+	sw 	$t5, ($t6)
+	
+	addi 	$t0, $t0, 1
+	j selLoop
 
 exitSel: 
 	jr $ra
@@ -148,11 +182,11 @@ calcSum:
 	# Your implementation of calcSum here
 	# $a1 is the len number 
 	# $a0 is the array 
-	ble 	$a1, $zero, exit_cal 
+	bge 	$t8, $a1, exit_cal 
 	lw 	$a2, ($a0)  	#load the element into $a2
 	add 	$v1, $a2, $v1
 	addi 	$a0, $a0, 4	# increment the array pointer
-    	addi 	$a1, $a1, -1	# increment the loop counter
+    	addi 	$t8, $t8, 1	# minus the loop counter by 1 
     	j 	calcSum 
 exit_cal: 
 	jr 	$ra
